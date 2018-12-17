@@ -22,9 +22,9 @@ VALUES
   ("Harness", "Cat Accessories", 3.49, 5),
   ("Flea Collar", "Cat Health", 57.00, 20),
   ("Brush", "Cat Health", 5.99, 25),
-  ("Litter Box", "Essentials", 19.95, 12),
-  ("Ceramic Food Bowl", "Essentials", 7.49, 20),
+  ("Litter Box", "Cat Essentials", 19.95, 12),
+  ("Ceramic Food Bowl", "Cat Essentials", 7.49, 20),
   ("Cat Tree", "Cat Toys", 119.95, 5),
-  ("Water Fountain", "Accessories", 29.99, 9);
+  ("Water Fountain", "Cat Accessories", 29.99, 9);
 
 SELECT * FROM products;
