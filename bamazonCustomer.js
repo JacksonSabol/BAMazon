@@ -43,8 +43,6 @@ function displayItems() {
         console.log(table.toString());
         // Invoke function to allow customers to begin shopping
         beginShopping();
-        // End connection for testing
-        // connection.end();
     });
 
 }
