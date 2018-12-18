@@ -179,3 +179,58 @@ function addToInventory() {
         );
     });
 }
+
+// Add function to allow 'manager' to add new product to inventory - consider adding array of choices for department based on existing departments
+function addNewProduct() {
+    // Prompt user for the name, department, price, and stock quantity of the item 
+    // Default type in Inquirer is 'input' so no need to specify 'type' explicitly
+    inquirer.prompt([
+        {
+            name: "name",
+            message: "Enter the name of the new product: ",
+        },
+        {
+            name: "department",
+            message: "Enter the department name for the new product: ",
+        },
+        {
+            name: "price",
+            message: "Enter the price of the new product: ",
+            validate: function (value) { // Verify that input is a number
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        },
+        {
+            name: "quantity",
+            message: "Enter the stock quantity of the product: ",
+            validate: function (value) { // Verify that input is a number
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        }
+    ]).then(function (answers) {
+        // Create a new connection to the SQL database to insert the new product information - prevent injection
+        connection.query("INSERT INTO products SET ?",
+            {
+                product_name: answers.name,
+                department_name: answers.department,
+                price: answers.price,
+                stock_quantity: answers.quantity
+            },
+            function (err, res) {
+                // Check for errors
+                if (err) throw err;
+                // If no errors...
+                // Log that the item was successfully 'added' by the 'manager'
+                console.log("You have successfully added " + answers.name + " to the inventory.");
+                // Re-Invoke viewProducts to display updated inventory which then invokes the displayManagerOptions function to present user with management action options
+                viewProducts();
+            }
+        );
+    });
+}
