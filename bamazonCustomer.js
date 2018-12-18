@@ -34,7 +34,7 @@ function displayItems() {
         });
         // Check for errors
         if (err) throw err;
-        // If no errors...
+        // If no errors... iterate through the items in the products table
         res.forEach(function (row) {
             // Push all items from the 'products' table into the CLI-Table
             table.push([row.id, row.product_name, row.department_name, row.price, row.stock_quantity]);
