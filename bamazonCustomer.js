@@ -53,7 +53,7 @@ function beginShopping() {
     inquirer.prompt([
         {
             name: "id",
-            message: "Please enter the ID number of the item you'd like to purchase",
+            message: "Please enter the ID number of the item you'd like to purchase: ",
             validate: function (value) { // Verify that input is a number
                 if (isNaN(value) === false) {
                     return true;
@@ -63,7 +63,7 @@ function beginShopping() {
         },
         {
             name: "quantity",
-            message: "Please enter the quantity you'd like to purchase",
+            message: "Please enter the quantity you'd like to purchase: ",
             validate: function (value) { // Verify that input is a number
                 if (isNaN(value) === false) {
                     return true;

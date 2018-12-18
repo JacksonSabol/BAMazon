@@ -120,3 +120,62 @@ function viewLowInventory() {
             }
         });
 }
+
+// Add function to allow 'manager' to add more of any item currently in the store
+function addToInventory() {
+    // Prompt user for item ID and quantity - default type in Inquirer is 'input' so no need to specify 'type' explicitly
+    inquirer.prompt([
+        {
+            name: "id",
+            message: "Enter the ID of the item to which you'd like to add inventory: ",
+            validate: function (value) { // Verify that input is a number
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        },
+        {
+            name: "quantity",
+            message: "Enter the quantity you'd like to add to this item's inventory: ",
+            validate: function (value) { // Verify that input is a number
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        }
+    ]).then(function (answers) {
+        // Create a new connection to the SQL database to get the product information about the item at the user's requested ID - prevent injection
+        connection.query("SELECT * FROM products WHERE ?", { id: answers.id },
+            function (err, res) {
+                // Check for errors
+                if (err) throw err;
+                // If no errors...
+                // Assign local variable to hold the product name for displaying later
+                var productName = res[0].product_name;
+                // Initiate another connection to update the database at the user specified ID - prevent injection
+                connection.query("UPDATE products SET ? WHERE ?",
+                    [
+                        {   // Reassign stock_quantity to the original amount plus the user specified amount
+                            stock_quantity: (res[0].stock_quantity + parseInt(answers.quantity))
+                        },
+                        {   // At the id equal to the id chosen by the user in the previous prompt
+                            id: answers.id
+                        }
+                    ],
+                    function (err, res) {
+                        // Check for errors
+                        if (err) throw err;
+                        // If no errors...
+                        // Log the number of items 'added' by the 'manager'
+                        console.log("You have successfully added " + answers.quantity + " of item: " + productName);
+                        // Re-Invoke viewProducts to display updated inventory which then invokes the displayManagerOptions function to present user with management action options
+                        viewProducts();
+                    }
+                );
+
+            }
+        );
+    });
+}
