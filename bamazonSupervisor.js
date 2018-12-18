@@ -89,3 +89,41 @@ function viewProductSales() {
         displaySupervisorOptions();
     });
 }
+
+// Add function to create a new department in the departments table
+function createNewDepartment() {
+    // Prompt user for item ID and quantity - default type in Inquirer is 'input' so no need to specify 'type' explicitly
+    inquirer.prompt([
+        {
+            name: "department",
+            message: "Enter the name of the new department: ",
+        },
+        {
+            name: "overhead",
+            message: "Enter the department's overhead costs: ",
+            validate: function (value) { // Verify that input is a number
+                if (isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        }
+    ]).then(function (answers) {
+        // Create a new connection to the SQL database to insert the new department information - prevent injection
+        connection.query("INSERT INTO departments SET ?",
+            {
+                department_name: answers.department,
+                over_head_costs: answers.overhead,
+            },
+            function (err, res) {
+                // Check for errors
+                if (err) throw err;
+                // If no errors...
+                // Log that the department was successfully 'added' by the 'supervisor'
+                console.log("You have successfully added department " + answers.department + " to the list for inventory.");
+                // Re-Invoke the displaySupervisorOptions function to present user with management action options
+                displaySupervisorOptions();
+            }
+        );
+    });
+}

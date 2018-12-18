@@ -107,7 +107,7 @@ function viewLowInventory() {
             // If it is...
             if (counter === 0) {
                 // Inventory levels are good
-                console.log("You're well stocked!");
+                console.log("Our inventory levels are sufficient.");
                 // Re-Invoke viewProducts to display inventory which then invokes the displayManagerOptions function to present user with management action options
                 viewProducts();
             }
