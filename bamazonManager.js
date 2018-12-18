@@ -214,22 +214,43 @@ function addNewProduct() {
             }
         }
     ]).then(function (answers) {
-        // Create a new connection to the SQL database to insert the new product information - prevent injection
-        connection.query("INSERT INTO products SET ?",
+        // Create a new connection to the SQL database to check if the desired department exists - prevent injection
+        connection.query("SELECT department_name FROM departments WHERE ?",
             {
-                product_name: answers.name,
-                department_name: answers.department,
-                price: answers.price,
-                stock_quantity: answers.quantity
+                department_name: answers.department
             },
             function (err, res) {
                 // Check for errors
                 if (err) throw err;
                 // If no errors...
-                // Log that the item was successfully 'added' by the 'manager'
-                console.log("You have successfully added " + answers.name + " to the inventory.");
-                // Re-Invoke viewProducts to display updated inventory which then invokes the displayManagerOptions function to present user with management action options
-                viewProducts();
+                // Check to see if the department exists by checking the response length
+                if (!res.length) {
+                    // If it doesn't...
+                    console.log("Department does not exist - talk to your supervisor about adding a new department.");
+                    // Re-Invoke viewProducts to display updated inventory which then invokes the displayManagerOptions function to present user with management action options
+                    viewProducts();
+                }
+                // Otherwise...
+                else {
+                    // Create a new connection to the SQL database to insert the new product information - prevent injection
+                    connection.query("INSERT INTO products SET ?",
+                        {
+                            product_name: answers.name,
+                            department_name: answers.department,
+                            price: answers.price,
+                            stock_quantity: answers.quantity
+                        },
+                        function (err, res) {
+                            // Check for errors
+                            if (err) throw err;
+                            // If no errors...
+                            // Log that the item was successfully 'added' by the 'manager'
+                            console.log("You have successfully added " + answers.name + " to the inventory.");
+                            // Re-Invoke viewProducts to display updated inventory which then invokes the displayManagerOptions function to present user with management action options
+                            viewProducts();
+                        }
+                    );
+                }
             }
         );
     });
