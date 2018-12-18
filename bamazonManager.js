@@ -84,7 +84,7 @@ function viewLowInventory() {
         function (err, res) {
             // Assign a variable to create a new CLI-Table
             var table = new Table({
-                head: ["ID", "Product", "Department", "Price", "Number in Stock"],
+                head: ["Item ID", "Product", "Department", "Price", "Number in Stock"],
                 colWidths: [10, 30, 30, 20, 20]
             });
             // Check for errors

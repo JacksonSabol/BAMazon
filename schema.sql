@@ -9,6 +9,14 @@ CREATE TABLE products (
   department_name VARCHAR(50) NOT NULL,
   price DECIMAL (10,2) NOT NULL,
   stock_quantity INT(10) NOT NULL,
+  product_sales DECIMAL (10,2),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE departments (
+  id INTEGER(10) NOT NULL AUTO_INCREMENT,
+  department_name VARCHAR(50) NOT NULL,
+  over_head_costs DECIMAL (10,2) NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -27,4 +35,14 @@ VALUES
   ("Cat Tree", "Cat Toys", 119.95, 5),
   ("Water Fountain", "Cat Accessories", 29.99, 9);
 
+INSERT INTO departments 
+  (department_name, over_head_costs)
+VALUES
+  ("Cat Food", 500),
+  ("Cat Toys", 1000),
+  ("Cat Accessories", 700),
+  ("Cat Health", 400),
+  ("Cat Essentials", 300);
+
 SELECT * FROM products;
+SELECT * FROM departments;

@@ -29,7 +29,7 @@ function displayItems() {
     connection.query("SELECT * FROM products", function (err, res) {
         // Assign a variable to create a new CLI-Table
         var table = new Table({
-            head: ["ID", "Product", "Department", "Price", "Number in Stock"],
+            head: ["Item ID", "Product", "Department", "Price", "Number in Stock"],
             colWidths: [10, 30, 30, 20, 20]
         });
         // Check for errors
@@ -99,7 +99,7 @@ function fulfillOrder(id_desired, quantity_desired, product_name, quantity_stock
     // Connect to products table to set values - prevent injection
     connection.query("UPDATE products SET ? WHERE ?",
         [
-            {   // Reset stock_quantity to the original amount minus the number ordered by the user
+            {   // Reassign stock_quantity to the original amount minus the number ordered by the user
                 stock_quantity: (quantity_stock - quantity_desired)
             },
             {   // At the id equal to the id chosen by the user in the beginShopping prompt
@@ -126,24 +126,40 @@ function fulfillOrder(id_desired, quantity_desired, product_name, quantity_stock
             var totalDisplay = total.toFixed(2);
             // Log the total cost to the user
             console.log("Your total is: " + totalDisplay);
-            // Prompt the user to ask if they'd like to place another order, or end their session
-            inquirer.prompt(
-                {
-                    type: "confirm",
-                    name: "confirm",
-                    message: "Would you like to make another purchase?"
+            // Connect to products table to update product_sales based on item and quantity user 'purchased' - prevent injection
+            connection.query("UPDATE products SET ? WHERE ?",
+                [
+                    {   // Reassign product_sales to the previous value plus the user's total
+                        product_sales: (res[0].product_sales + total)
+                    },
+                    {   // At the id equal to the id chosen by the user in the beginShopping prompt
+                        id: id_desired
+                    }
+                ],
+                function (err, res) {
+                    // Check for errors
+                    if (err) throw err;
+                    // If no errors...
+                    // Prompt the user to ask if they'd like to place another order, or end their session
+                    inquirer.prompt(
+                        {
+                            type: "confirm",
+                            name: "confirm",
+                            message: "Would you like to make another purchase?"
+                        }
+                    ).then(function (answer) {
+                        // If the user confirms 'yes', invoke the displayItems function after the connection is made to restart shopping
+                        if (answer.confirm) {
+                            displayItems();
+                        }
+                        // Otherwise, end the connection
+                        else {
+                            console.log("Thank you for shopping at Whisker's Whimsies! Have a great day!")
+                            connection.end();
+                        }
+                    });
                 }
-            ).then(function (answer) {
-                // If the user confirms 'yes', invoke the displayItems function after the connection is made to restart shopping
-                if (answer.confirm) {
-                    displayItems();
-                }
-                // Otherwise, end the connection
-                else {
-                    console.log("Thank you for shopping at Whisker's Whimsies! Have a great day!")
-                    connection.end();
-                }
-            });
+            );
         }
     );
 }
