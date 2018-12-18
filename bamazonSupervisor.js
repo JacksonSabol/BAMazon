@@ -77,8 +77,6 @@ function viewProductSales() {
             var totalProfit = (row['SUM(products.product_sales)'] - row.over_head_costs);
             // Assign variable to display total to 2 decimal places even if the values at those decimal places are 0
             var totalDisplay = totalProfit.toFixed(2);
-            // Log for testing
-            // console.log(row.id, row.department_name, row.over_head_costs, row['SUM(products.product_sales)'], totalDisplay);
             // Push the item and department information, as well as the totalProfit calculation, to the new CLI-Table
             table.push([row.id, row.department_name, row.over_head_costs, row['SUM(products.product_sales)'], totalDisplay]);
 
