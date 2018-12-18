@@ -74,7 +74,7 @@ function beginShopping() {
             }
         }
     ]).then(function (answers) {
-        // Create a new connection to the SQL database to compare the ID and stock quantity of the item
+        // Create a new connection to the SQL database to compare the ID and stock quantity of the item - prevent injection
         connection.query("SELECT * FROM products WHERE ?", { id: answers.id },
             function (err, res) {
                 // Check for errors
@@ -87,15 +87,65 @@ function beginShopping() {
                     // Re-invoke the beginShopping function to show prompt again
                     beginShopping();
                 }
-                // Otherwise, fullfill the order
+                // Otherwise, 'fullfill' the order
                 else {
-                    // Invoke function to fullfill order, passing the answers from the prompt
-                    //
-                    // Log for testing
-                    console.log(answers.id, answers.quantity, res[0].product_name, res[0].department_name, res[0].price, res[0].stock_quantity);
-                    // End connection for testing
-                    connection.end();
+                    // Invoke function to 'fullfill' order, passing the answers from the prompt and values from the SQL database
+                    fulfillOrder(answers.id, answers.quantity, res[0].product_name, res[0].stock_quantity);
                 }
             });
     });
+}
+
+// Add function to 'fullfill' user's order by updating database
+function fulfillOrder(id_desired, quantity_desired, product_name, quantity_stock) {
+    // Connect to products table to set values - prevent injection
+    connection.query("UPDATE products SET ? WHERE ?",
+        [
+            {   // Reset stock_quantity to the original amount minus the number ordered by the user
+                stock_quantity: (quantity_stock - quantity_desired)
+            },
+            {   // At the id equal to the id chosen by the user in the beginShopping prompt
+                id: id_desired
+            }
+        ],
+        function (err, res) {
+            // Check for errors
+            if (err) throw err;
+            // If no errors...
+            // Log the number of items 'purhcased' to the customer
+            console.log("You have successfully placed an order for " + quantity_desired + " of item: " + product_name);
+        }
+    );
+    // Connect to products table to get values and calculate total cost to user - prevent injection
+    connection.query("SELECT * FROM products WHERE ?", { id: id_desired },
+        function (err, res) {
+            // Check for errors
+            if (err) throw err;
+            // If no errors...
+            // Assign a variable to calculate the user's total cost
+            var total = res[0].price * quantity_desired;
+            // Assign variable to display total to 2 decimal places even if the values at those decimal places are 0
+            var totalDisplay = total.toFixed(2);
+            // Log the total cost to the user
+            console.log("Your total is: " + totalDisplay);
+            // Prompt the user to ask if they'd like to place another order, or end their session
+            inquirer.prompt(
+                {
+                    type: "confirm",
+                    name: "confirm",
+                    message: "Would you like to make another purchase?"
+                }
+            ).then(function (answer) {
+                // If the user confirms 'yes', invoke the displayItems function after the connection is made to restart shopping
+                if (answer.confirm) {
+                    displayItems();
+                }
+                // Otherwise, end the connection
+                else {
+                    console.log("Thank you for shopping at Whisker's Whimsies! Have a great day!")
+                    connection.end();
+                }
+            });
+        }
+    );
 }
